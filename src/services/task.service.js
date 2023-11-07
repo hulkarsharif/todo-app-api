@@ -7,6 +7,13 @@ class TaskService {
             data: {
                 ...input,
                 userId: userId
+            },
+            select: {
+                title: true,
+                description: true,
+                due: true,
+                status: true,
+                id: true
             }
         });
 

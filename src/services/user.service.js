@@ -59,13 +59,13 @@ class UserService {
         //         400
         //     );
         // }
-        // const isPasswordMatches = await bcrypt.compare(
-        //     input.password,
-        //     user.password
-        // );
-        // if (!isPasswordMatches) {
-        //     throw new CustomError("Invalid Credentials", 401);
-        // }
+        const isPasswordMatches = await bcrypt.compare(
+            input.password,
+            user.password
+        );
+        if (!isPasswordMatches) {
+            throw new CustomError("Invalid Credentials", 401);
+        }
 
         const token = jwt.sign(
             {

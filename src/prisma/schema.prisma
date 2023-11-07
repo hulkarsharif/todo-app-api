@@ -7,37 +7,31 @@ generator client {
     provider = "prisma-client-js"
 }
 
-enum AccountStatus {
-    ACTIVE
-    INACTIVE
-}
-
 enum TaskStatus {
     TODO
     INPROGRESS
     DONE
 }
 
-model Task {
+model User {
+    id                               String    @id @default(auto()) @map("_id") @db.ObjectId
+    email                            String    @unique
+    firstName                        String
+    lastName                         String
+    password                         String
+    passwordResetToken               String?
+    passwordResetTokenExpirationDate DateTime?
+    createdAt                        DateTime  @default(now())
+    updatedAt                        DateTime  @updatedAt
+}
+
+model Tasks {
     id          String     @id @default(auto()) @map("_id") @db.ObjectId
     title       String
     description String?
-    due         DateTime
-    status      TaskStatus
+    due         String
+    status      TaskStatus @default(TODO)
     userId      String     @db.ObjectId
-    User        User[]
-}
-
-model User {
-    id              String        @id @default(auto()) @map("_id") @db.ObjectId
-    email           String        @unique
-    firstName       String
-    lastName        String
-    password        String
-    activationToken String?
-    createdAt       DateTime      @default(now())
-    updatedAt       DateTime      @updatedAt
-    status          AccountStatus @default(INACTIVE)
-    Task            Task?         @relation(fields: [taskId], references: [id])
-    taskId          String        @db.ObjectId
+    createdAt   DateTime   @default(now())
+    updatedAt   DateTime   @updatedAt
 }

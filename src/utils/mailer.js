@@ -20,12 +20,12 @@ class Mailer {
         }
     };
 
-    sendActivationMail = async (emailAddress, token) => {
+    sendPasswordResetToken = async (emailAddress, token) => {
         try {
             this.send({
                 to: emailAddress,
-                subject: "todo-app-api |Activate your Account",
-                html: `<a href="http://localhost:4080/users/activate?activationToken=${token}">Verify your email</a>`
+                subject: "Todo-App-api | Reset Password",
+                html: `<a href="http://localhost:3000/reset-password/passwordResetToken=${token}">Reset Your Password</a>`
             });
         } catch (error) {
             throw error;
