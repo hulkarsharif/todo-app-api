@@ -13,18 +13,9 @@ enum TaskStatus {
     DONE
 }
 
-type Task {
-    id          String
-    title       String
-    description String?
-    due         DateTime
-    status      TaskStatus
-}
-
 model User {
     id                               String    @id @default(auto()) @map("_id") @db.ObjectId
     email                            String    @unique
-    preferredFirstName               String?
     firstName                        String
     lastName                         String
     password                         String
@@ -32,5 +23,15 @@ model User {
     passwordResetTokenExpirationDate DateTime?
     createdAt                        DateTime  @default(now())
     updatedAt                        DateTime  @updatedAt
-    tasks                            Task[]
+}
+
+model Tasks {
+    id          String     @id @default(auto()) @map("_id") @db.ObjectId
+    title       String
+    description String?
+    due         String
+    status      TaskStatus @default(TODO)
+    userId      String     @db.ObjectId
+    createdAt   DateTime   @default(now())
+    updatedAt   DateTime   @updatedAt
 }
