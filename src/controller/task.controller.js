@@ -5,13 +5,18 @@ import { taskService } from "../services/task.service.js";
 class TaskController {
     create = catchAsync(async (req, res) => {
         const { body, userId } = req;
+
         const input = {
-            name: body.name,
-            description: body.description
+            title: body.title,
+            description: body.description,
+            due: body.due
         };
 
-        if (!input.name || !input.description) {
-            throw new CustomError("Name and Description are required", 400);
+        if (!input.title || !input.description || !input.due) {
+            throw new CustomError(
+                "Name, Description  and Due date  are required",
+                400
+            );
         }
 
         const task = await taskService.create(input, userId);

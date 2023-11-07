@@ -14,11 +14,7 @@ class UserController {
             password: body.password
         };
 
-        const taskInput = {
-            title: body.task.title,
-            description: body.task.description
-        };
-        await userService.signUp(userInput, taskInput);
+        await userService.signUp(userInput);
         res.status(201).json({
             message: "Success"
         });
