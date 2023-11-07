@@ -1,10 +1,21 @@
 import express from "express";
 
-const app = express();
+import { todoRouter } from "./routes/todo.routes.js";
 
+import dotenv from "dotenv";
+import { GlobalError } from "./middlewares/global-error.middleware.js";
+
+dotenv.config();
+
+const app = express();
 app.use(express.json());
 
-const PORT = process.env.PORT || 3030;
+const PORT = process.env.PORT || 4000;
+
+app.use("/users", userRouter);
+app.use("/tasks", todoRouter);
+app.use(GlobalError.handle);
+
 app.listen(PORT, () => {
-    console.log("Server is running ", PORT);
+    console.log("Server is running on ", PORT);
 });
