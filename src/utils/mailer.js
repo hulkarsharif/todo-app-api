@@ -24,7 +24,7 @@ class Mailer {
         try {
             this.send({
                 to: emailAddress,
-                subject: "Todo-App-api | Reset Password",
+                subject: "Todo-app-api | Reset Password",
                 html: `<a href="http://localhost:3000/reset-password/passwordResetToken=${token}">Reset Your Password</a>`
             });
         } catch (error) {

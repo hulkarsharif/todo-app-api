@@ -5,30 +5,21 @@ import { bcrypt } from "../utils/bcrypt.js";
 import { date } from "../utils/date.js";
 import jwt from "jsonwebtoken";
 import { v4 as uuid } from "uuid";
-import { CustomError } from "../errors/custom-error.js";
+import { CustomError } from "../errors/customError.js";
 
 class UserService {
     signUp = async (userInput) => {
         const hashedPassword = await bcrypt.hash(userInput.password);
-        // const activationToken = crypto.createToken();
-        // const hashedActivationToken = crypto.hash(activationToken);
+
         const user = await prisma.user.create({
             data: {
                 ...userInput,
                 password: hashedPassword
-                // activationToken: hashedActivationToken
             },
             select: {
                 id: true
             }
         });
-        // await prisma.task.create({
-        //     data: {
-        //         ...taskInput,
-        //         userId: user.id
-        //     }
-        // });
-        // await mailer.sendActivationMail(userInput.email, activationToken);
     };
 
     login = async (input) => {
@@ -41,24 +32,9 @@ class UserService {
                 password: true
             }
         });
+
         if (!user) throw new CustomError("User does not exist", 404);
-        // if (user.status === "INACTIVE") {
-        //     const activationToken = crypto.createToken();
-        //     const hashedActivationToken = crypto.hash(activationToken);
-        //     await prisma.user.update({
-        //         where: {
-        //             id: user.id
-        //         },
-        //         data: {
-        //             activationToken: hashedActivationToken
-        //         }
-        //     });
-        //     await mailer.sendActivationMail(input.email, activationToken);
-        //     throw new CustomError(
-        //         "We just sent you activation email. Follow instructions",
-        //         400
-        //     );
-        // }
+
         const isPasswordMatches = await bcrypt.compare(
             input.password,
             user.password
@@ -79,5 +55,91 @@ class UserService {
 
         return token;
     };
+
+    forgotPassword = async (email) => {
+        const user = await prisma.user.findFirst({
+            where: {
+                email
+            },
+            select: {
+                id: true
+            }
+        });
+
+        if (!user)
+            throw new CustomError(
+                "We could not find a user with the email you provided",
+                404
+            );
+
+        const passwordResetToken = crypto.createToken();
+        const hashedPasswordResetToken = crypto.hash(passwordResetToken);
+
+        await prisma.user.update({
+            where: {
+                id: user.id
+            },
+            data: {
+                passwordResetToken: hashedPasswordResetToken,
+                passwordResetTokenExpirationDate: date.addMinutes(10)
+            }
+        });
+
+        await mailer.sendPasswordResetToken(email, passwordResetToken);
+    };
+
+    resetPassword = async (token, password) => {
+        const hashedPasswordResetToken = crypto.hash(token);
+        const user = await prisma.user.findFirst({
+            where: {
+                passwordResetToken: hashedPasswordResetToken
+            },
+            select: {
+                id: true,
+                passwordResetToken: true,
+                passwordResetTokenExpirationDate: true
+            }
+        });
+
+        if (!user) throw new CustomError("Invalid Token", 401);
+
+        const currentTime = new Date();
+        const tokenExpDate = new Date(user.passwordResetTokenExpirationDate);
+
+        if (tokenExpDate < currentTime)
+            throw new CustomError("Reset Token Expired", 422);
+
+        await prisma.user.update({
+            where: {
+                id: user.id
+            },
+            data: {
+                password: await bcrypt.hash(password),
+                passwordResetToken: null,
+                passwordResetTokenExpirationDate: null
+            }
+        });
+    };
+
+    getMe = async (userId) => {
+        const user = await prisma.user.findUnique({
+            where: {
+                id: userId
+            },
+            select: {
+                firstName: true,
+                lastName: true,
+                preferredFirstName: true,
+                email: true
+            }
+        });
+
+        if (!user) {
+            throw new Error("User does not exist anymore, 404");
+        }
+
+        return user;
+    };
 }
-export let userService = new UserService();
+
+export const userService = new UserService();
