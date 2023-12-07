@@ -4,10 +4,12 @@ import { taskRouter } from "./routes/task.router.js";
 
 import dotenv from "dotenv";
 import { GlobalError } from "./middlewares/global-error.middleware.js";
+import cors from "cors";
 
 dotenv.config();
 
 const app = express();
+app.use(cors());
 app.use(express.json());
 
 const PORT = process.env.PORT || 4060;
